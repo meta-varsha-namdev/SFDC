@@ -1,0 +1,28 @@
+public class ContactIDStore
+{
+	public static void storeContactIdToAccountField(id contact_id)
+    {
+        Contact con = [SELECT Account.Id,Account.ContactId__c FROM Contact WHERE Id =: contact_id];
+        Account account_id = con.Account;
+        if(!(account_id.ContactId__c == null))
+        {
+            if(!account_id.ContactId__c.contains(contact_id))
+            {
+                account_id.ContactId__c = account_id.ContactId__c +', '+contact_id;
+                update account_id;
+            }   
+        }        
+        else
+        {
+           List<Contact> contactRelatedToAccount = [SELECT Id FROM Contact WHERE AccountId = :account_id.ID];
+            String contactIDList='';
+            for(Contact cons : contactRelatedToAccount)
+            {
+                contactIDList  = contactIDList+cons.Id+', ';
+            }
+            contactIDList = contactIDList.removeEnd(', ');
+            account_id.ContactId__c = contactIDList;
+            update account_id; 
+   		}
+	}
+}
