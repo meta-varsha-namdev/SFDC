@@ -1,0 +1,32 @@
+trigger ClassIsFilled on Student__c (before insert) 
+{   
+	set<id>student_ids= new set<id>();
+	for(student__c stu: trigger.new)
+    {
+	student_ids.add(stu.id);
+	}
+
+	list<student__c> std = [select class__r.name from student__c where id in :student_ids];
+	set<Id> classIds = new Set<ID>(); 
+	List<String> classNames = new List<String>();
+	for(Student__c student: std) 
+    {
+	classIds.add(student.class__c);
+	classNames.add(student.class__r.Name);
+	}
+	List<class__c> cls = [select MaxSize__c,NumberOfStudents__c from class__c where name IN :classNames];
+    
+    for(student__c stdcls : trigger.new)
+    {
+        for(class__c c : cls)
+        {
+            decimal NumStd = c.NumberOfStudents__c;
+            decimal Maxno = c.MaxSize__c;
+            system.debug('Std Num value: '+NumStd + 'MaxSizeOf class: ' + Maxno);
+            if(NumStd == Maxno )
+            {
+                stdcls.addError('Cannot insert Record');
+    		}
+        }
+    }
+}
