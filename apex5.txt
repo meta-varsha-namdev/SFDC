@@ -1,0 +1,40 @@
+global class sendEmailToOpptyOwnerBatch implements Database.Batchable<SObject>
+{
+    List<string> address_list = new List<string>();
+    global Database.QueryLocator start(Database.BatchableContext bct)
+    {
+       return Database.getQueryLocator([SELECT id, Owner.Email FROM Opportunity WHERE LastModifiedDate = LAST_N_DAYS:30 limit 14]);
+    }
+    
+    global void execute(Database.BatchableContext bct, List<Opportunity> opp)
+    {      
+        for(Opportunity opps: opp)
+        {   
+            String toAddresses = opps.Owner.Email;
+            address_list.add(toAddresses);   
+        } 
+    }
+    
+    global void finish(Database.BatchableContext bct)
+    {
+        	List<Messaging.SingleEmailMessage> single_mail = new List<Messaging.SingleEmailMessage>();
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(address_list);
+            mail.setSubject('Opportunity not changed');
+            mail.setPlainTextBody('Hi you have not changed the opportunity from past 30 days');  
+        	single_mail.add(mail);
+        	Messaging.sendEmail(single_mail);
+    }
+}
+
+
+
+
+global class sendEmailToOpptyOwnerSchedule implements Schedulable 
+{
+   global void execute(SchedulableContext sc) 
+   {
+      sendEmailToOpptyOwnerBatch b = new sendEmailToOpptyOwnerBatch();
+      database.executeBatch(b);
+   }
+}
