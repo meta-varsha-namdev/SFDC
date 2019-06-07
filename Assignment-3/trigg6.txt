@@ -1,0 +1,13 @@
+trigger DeleteOnResetOpportunity on Opportunity (after update) 
+{
+    Set<id> opportunityIdset = new Set<id>();
+    for(Opportunity opp : trigger.old)
+    {
+        if(opp.Custom_Status__c == 'Reset')
+        {
+            opportunityIdset.add(opp.Id);
+        }
+        
+        delete [SELECT Id FROM OpportunityLineItem where OpportunityId IN :opportunityIdset];
+    }
+}

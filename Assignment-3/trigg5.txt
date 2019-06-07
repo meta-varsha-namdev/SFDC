@@ -1,0 +1,10 @@
+trigger StageChangedToAnotherValue on Opportunity (after update) 
+{
+	for(Opportunity opp : trigger.old)
+    {
+        if(opp.StageName == 'CLOSED_WON' || opp.StageName=='CLOSED_LOST')
+        {
+            opp.CloseDate = System.today();
+        }
+    }
+}
