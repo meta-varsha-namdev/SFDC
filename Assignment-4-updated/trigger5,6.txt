@@ -4,13 +4,10 @@ trigger StageChangedToAnotherValue on Opportunity (before update, after update)
     {
         for(Opportunity opp : trigger.new)
         {
-            if(opp.StageName == 'CLOSED_WON' || opp.StageName=='CLOSED_LOST')
-            {
-                opp.CloseDate = System.today();
-            }
             
             if((Trigger.oldMap.get(opp.Id).StageName != 'Closed Won' || Trigger.oldMap.get(opp.Id).StageName != 'Closed Won') 
 			&& (opp.StageName == 'Closed Won' || opp.StageName == 'Closed Lost')){
+			opp.CloseDate = System.today();
         }        
     }
     
