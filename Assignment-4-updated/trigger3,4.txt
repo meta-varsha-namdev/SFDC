@@ -1,0 +1,47 @@
+trigger ClassIsFilled on Student__c (before insert, before update, after insert) 
+{   
+    if(trigger.isBefore)
+    {
+        set<id>student_ids= new set<id>();
+        set<Id> classIds = new Set<ID>(); 
+        for(student__c stu: trigger.new)
+        {
+            classIds.add(stu.class__c);
+        }
+        List<class__c> cls = [select MaxSize__c,MyCount__c from class__c where id IN :classIds];
+        Map<Id, Class__c> clMap = new Map<Id, Class__c>(cls);
+        Class__c cl;
+        for(student__c stu: trigger.new)
+        {
+            cl = clMap.get(stu.class__c);
+            if(cl.MyCount__c >= cl.MaxSize__c)
+            {
+                stu.addError('Cannot Insert Record');
+            }
+        }
+    }
+    
+    if(trigger.isAfter)
+    {
+        List<id> class_id = new List<id>();
+        for(Student__c stude : trigger.new)
+        {
+            class_id.add(stude.Class__c);
+        } 
+        List<String> my_count = new List<String>();
+        
+        List<class__c> clss = [select id ,MyCount__c from class__c where id IN :class_id];
+        Map<Id, Class__c> demo_map = new Map<Id, Class__c>(clss);
+        
+        Class__c class_demo;
+        List<Class__c> xxx = new List<Class__c>();
+        
+        for(Student__c stud:list_of_student)
+        {
+           	class_demo = demo_map.get(stud.class__c);
+            class_demo.MyCount__c = class_demo.MyCount__c+1;
+            xxx.add(class_demo);
+        }
+        update xxx;
+    }   
+}

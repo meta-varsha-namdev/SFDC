@@ -1,0 +1,8 @@
+trigger ClassNotDelete on Class__c (before delete) 
+{
+	for(Class__c con : trigger.old)
+    {
+        if(con.Number_of_Females__c >1)
+            con.addError('Females are greater than 1 and hence cannot be deleted');
+    }
+}
