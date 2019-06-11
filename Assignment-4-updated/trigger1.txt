@@ -3,6 +3,6 @@ trigger TeacherNotHindi on Contact (before insert, before update)
     for(Contact con : trigger.new)
     {
         if(con.Subjects__c != null && con.Subjects__c.contains('Hindi'))
-            con.addError('Hindi Teacher cannot be added');
+            con.addError('Teacher has Hindi as Subject');
     }
 }
