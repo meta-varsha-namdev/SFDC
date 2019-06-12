@@ -1,8 +1,20 @@
 trigger ClassNotDelete on Class__c (before delete) 
 {
-	for(Class__c con : trigger.old)
+    List<id> ids = new List<id>();
+    for(Class__c con : trigger.old)
     {
-        if(con.Number_of_Females__c >1)
-            con.addError('Females are greater than 1 and hence cannot be deleted');
+        ids.add(con.id);
     }
+      
+    Class__c[] classes_is = [SELECT id,(SELECT id FROM Students__r WHERE Sex__c = 'Female') FROM Class__c WHERE id in: ids];
+    
+    for(Class__c count : classes_is)
+    {
+        if(count.Students__r.Size()>1)
+        {
+            Class__c classid = Trigger.oldMap.get(count.Id);
+            classid.addError('Class having more than 1 female cannot be deleted');                   
+        }
+     
+    }   
 }
