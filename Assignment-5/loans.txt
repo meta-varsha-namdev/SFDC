@@ -1,0 +1,17 @@
+trigger Loans on Loan__c (before insert) 
+{
+    List<string> cities = new List<string>();
+	for(Loan__c loan_variable : trigger.new)
+    {
+        cities.add(loan_variable.City__c);
+    }
+    
+    Map<string, id> mappings = new Map<string, id>();
+    for(City_Manager__c qqq : [SELECT City__c, Manager__r.Username FROM City_Manager__c WHERE City__c in: cities])
+        mappings.put(qqq.City__c,qqq.Manager__c);   
+    
+    for(Loan__c loan_variable : trigger.new)
+    {
+        loan_variable.Manager__c =mappings.get(loan_variable.City__c) ;
+    }
+}
