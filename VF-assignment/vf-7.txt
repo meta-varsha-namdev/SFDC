@@ -1,0 +1,75 @@
+public class EditDeleteClassRecord {
+    public List<Class__c> class_list {get; set;}
+    private Map<Id, Class__c> Mapping;
+    public Id identity{get; set;}
+    public Boolean showData{get; set;}
+    public Class__c dataToUpdate{get; set;}
+    
+    public EditDeleteClassRecord(){
+        showData = false;
+        class_list = [SELECT  id,Name, Fee__c FROM Class__c];
+    }
+    
+    public void editOption(){
+        Mapping = new Map<Id, Class__c>(class_list);
+        dataToUpdate = Mapping.get(identity);
+        showData = true;
+    }
+    
+    public void deletionOption(){
+        Mapping = new Map<Id, Class__c>(class_list);
+        delete Mapping.get(identity);
+        Mapping.remove(identity);
+        class_list = Mapping.values();
+        
+    }
+    
+    public void dataUpdate(){
+       
+        update dataToUpdate;
+        class_list = [SELECT  id, Name, Fee__c FROM Class__c]; 
+        showData = false;
+    }
+    
+    public void cancel(){
+        showData = false;
+    }
+
+}
+
+---------------------------------------
+
+<apex:page controller="EditDeleteClassRecord">
+    <apex:form id="list">
+        <apex:pageBlock >
+            <apex:pageBlockTable value="{! class_list}" var="tb" >
+                <apex:column value="{!tb.Id}"/>
+                <apex:column value="{!tb.Name}"/>
+                <apex:column value="{!tb.Fee__c}" />
+                <apex:column >
+                    <apex:commandLink value="Edit" action="{!editOption}" reRender="edition">
+                        <apex:param name="identity" value="{!tb.Id}" assignTo="{! identity}"/>
+                    </apex:commandLink>
+                </apex:column>
+                <apex:column >
+                    <apex:commandLink value="Delete" action="{!deletionOption}" reRender="class_list">
+                       <apex:param name="identity" value="{!tb.Id}" assignTo="{! identity}"/>
+                    </apex:commandLink>
+                </apex:column>
+                
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:form id="edition">
+        <apex:pageBlock rendered="{!showData}">
+            <apex:pageBlockButtons location="top" >
+                <apex:commandButton value="Update" action="{!dataUpdate}" reRender="edition,list"/>
+                <apex:commandButton value="Cancel" action="{!cancel}" reRender="edition"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >
+                <apex:inputField value="{!dataToUpdate.Name}"/>
+                <apex:inputField value="{!dataToUpdate.Fee__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
