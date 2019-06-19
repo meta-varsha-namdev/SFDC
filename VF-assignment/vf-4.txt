@@ -1,0 +1,82 @@
+<apex:page standardController="Student__c" renderAs="pdf" applyBodyTag="false">
+    <body>
+        <center>
+            <h1>
+                 {!Student__c.Name} PDF
+            </h1>
+            
+            <apex:panelGrid columns="1" width="100%">
+                <apex:outputText >Name :</apex:outputText>
+                <apex:outputText >{!Student__c.id} {!Student__c.Name}</apex:outputText>
+                <apex:outputText >Class :{!Student__c.Class__r.Name}</apex:outputText>
+                <apex:outputText >DOB :{!Student__c.DOB__c}</apex:outputText>
+                <apex:outputText >Email :{!Student__c.Email__c}</apex:outputText>
+            </apex:panelGrid>         
+        </center>
+    </body>
+</apex:page>
+
+---------------------------------------------
+
+public class PdfOfStudent 
+{
+    public List<Student__c> students_list{get; set;}
+     public Student__C student;
+    
+    public Id student_id{get; set;}
+
+    public PdfOfStudent(ApexPages.StandardController stdCon){
+        students_list = [SELECT id, Name, Class__r.Name, DOB__c, Email__c FROM Student__c];
+    }
+    
+    public PageReference attachPDF(){
+        PageReference pdfPage = new PageReference('/apex/PDFPage?id='+student.id);
+        List<Attachment> attachmentList = [SELECT Id FROM Attachment WHERE ParentID =:student.id];
+        if(attachmentList.size()>0){
+            delete attachmentList;
+        }
+        Blob body = pdfPage.getContent();
+        Attachment attachment = new Attachment();
+        attachment.Body = body;
+        attachment.ContentType='application/pdf';
+        attachment.Name = 'StudentDetail.pdf';
+        attachment.ParentId = student_id;	
+        insert attachment;
+        
+        return pdfPage;
+    }
+    
+    public PageReference getStudentId(){
+        student_id = ApexPages.currentPage().getparameters().get('SelectedStudentId');
+        System.debug(student_id);
+        Map<Id, Student__c> studentMap = new Map<Id, Student__c>(students_list);
+        student = studentMap.get(student_id);
+        System.debug('Method getStudentId');
+        PageReference page =  attachPDF();
+        page.setRedirect(true);
+        return page;
+    }
+}
+
+
+-------------------------------------------
+
+
+<apex:page standardController="Student__c" extensions="PdfOfStudent">
+    <apex:form>
+        <apex:pageBlock>
+     		<apex:pageBlockTable value="{! students_list}" var="tb">
+                <apex:column value="{! tb.id}"></apex:column>
+                <apex:column value="{! tb.Name}"></apex:column>
+                <apex:column value="{! tb.Class__r.Name}"></apex:column>
+                <apex:column value="{! tb.DOB__c}"></apex:column>
+                <apex:column value="{! tb.Email__c}"></apex:column>
+                <apex:column>
+                    <apex:commandLink value="GeneratePDF" action="{!getStudentId}" >
+                    <apex:param name="SelectedStudentId" value="{!tb.Id}" assignTo="{!student_id}"/>
+                    </apex:commandLink>
+                </apex:column>
+      		</apex:pageBlockTable>
+  </apex:pageBlock>
+    </apex:form>
+</apex:page>
