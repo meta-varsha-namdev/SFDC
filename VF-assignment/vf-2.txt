@@ -1,0 +1,65 @@
+public class FilterController 
+{
+    public string billingPickValue{get; set;}
+    
+    public List<Account> accountList{get; set;}
+    public string inputString{get; set;}
+    public List<SelectOption> getbillingOptions()
+    {
+        List<SelectOption> options = new List<selectoption>();
+        options.add(new SelectOption('BillingCity','BillingCity'));
+        options.add(new SelectOption('BillingState','BillingState'));
+       	options.add(new SelectOption('BillingCountry','BillingCountry'));
+        return options;
+    }
+    public List<Account> getaccountList()
+    {
+        System.debug('billingPickValue'+billingPickValue);
+        System.debug('inputString'+inputString);
+        accountList = Database.query('SELECT Name, ID, BillingCountry, BillingState, BillingCity FROM Account WHERE '+billingPickValue+' like \''+inputString+'\' Limit 100');
+        return accountList;
+    }
+ 
+   
+    public void showRecords()
+    {
+        getaccountList();
+    }
+    
+}
+
+------------------------------------
+
+
+<apex:page controller="FilterController">
+    <apex:form >
+    	<apex:pageBlock title="Account">
+            <apex:pageBlockSection title="Filter the Account by :">
+                <apex:selectList size="1" value="{! billingPickValue}">
+                    <apex:selectOptions value="{!billingOptions}">
+                    </apex:selectOptions>
+                </apex:selectList>
+                <apex:inputText value="{! inputString}">
+                </apex:inputText>
+                 <apex:commandButton value="Show" action="{! showRecords}" reRender="accounttable"></apex:commandButton>
+                 </apex:pageBlockSection>
+                <apex:outputPanel id="accounttable">
+                    <apex:pageBlockSection >
+                    <apex:pageBlockTable title="Accounts" value="{! accountList}"  var="a">
+                    <apex:column value="{! a.Name}">
+                    </apex:column>
+                    <apex:column value="{! a.BillingCity}">
+                    </apex:column>
+                    <apex:column value="{! a.BillingState}">
+                    </apex:column>
+                    <apex:column value="{! a.BillingCountry}">
+                    </apex:column>
+                </apex:pageBlockTable>  
+                        </apex:pageBlockSection>
+                </apex:outputPanel>
+                                 
+           
+           
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

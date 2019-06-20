@@ -1,0 +1,15 @@
+public class StudentsList 
+{
+	public static List<String> studentsListReturnFromClass(Id id_value )
+    {
+        
+       list<Student__c> retList = [Select name from Student__c Where Class__c=: id_value];
+	   list<string> names = new list<string>();
+       for(Student__c student: retList)
+       {
+           names.add(student.Name);
+       }
+        system.debug('the student data is '+retList);
+        Return names;   
+    }
+}

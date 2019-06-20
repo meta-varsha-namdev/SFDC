@@ -1,0 +1,33 @@
+<apex:page Controller="ConversionToJSON">
+    <apex:form >
+        <apex:pageBlock title="Object to JSON Format">
+    	<apex:pageBlockButtons location="bottom">
+            <apex:commandButton value="Convert" action="{! jsonConversion}" reRender="Get"/>
+        </apex:pageBlockButtons>
+        <apex:pageBlockSection >
+            <apex:inputText value="{! className}">
+            </apex:inputText>
+        </apex:pageBlockSection>
+        <apex:outputPanel id="Get">
+            <apex:pageBlockSection >
+                <apex:outputText value="{! json_string}"></apex:outputText>
+            </apex:pageBlockSection>
+        </apex:outputPanel>
+    </apex:pageBlock>
+    </apex:form> 
+</apex:page>
+
+-------------------------
+
+
+public class ConversionToJSON 
+{
+    public String className{get; set;}
+    public string json_string{get; set;}
+    
+    public void jsonConversion()
+{
+    Class__c demo = [SELECT id, Name, Board__c, ClassTeacher__c, Fee__c, NumberOfStudents__c FROM Class__c WHERE Name=: className ];
+    json_string = json.serialize(demo);
+}
+}

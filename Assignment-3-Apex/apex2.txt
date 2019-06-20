@@ -1,0 +1,18 @@
+public class ClassStudentMap 
+{
+	public static Map<string,Set<Id>> mappingFunction()
+    {        
+        Set<id> id_list = new Set<id>();
+        Map<string,Set<id>> mapss = new Map<string,Set<id>>(); 
+       	for(Class__c classes : [SELECT Name,(SELECT id FROM Students__r) FROM Class__c])
+        {
+            id_list.clear();
+            for(Student__c students : classes.Students__r)
+            {
+                id_list.add(students.id);
+            }
+            mapss.put(classes.Name, id_list);
+        }
+        return mapss;
+    }
+}

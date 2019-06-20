@@ -1,0 +1,158 @@
+public class DemoClass 
+{
+    Public Integer noOfRecords{get; set;}
+    Public Integer size{get;set;}
+    public string billingPickValue{get; set;}
+    public string inputString{get; set;}
+    public List<SelectOption> getbillingOptions()
+    {
+        List<SelectOption> options = new List<selectoption>();
+        options.add(new SelectOption('BillingCity','BillingCity'));
+        options.add(new SelectOption('BillingState','BillingState'));
+       	options.add(new SelectOption('BillingCountry','BillingCountry'));
+        return options;
+    }
+    
+	public ApexPages.StandardSetController demoFun
+    {
+        get {
+            if(demoFun == null) {
+                size = 10;
+                
+                demoFun = new ApexPages.StandardSetController(Database.getQueryLocator('SELECT Name, ID, BillingCountry, BillingState, BillingCity FROM Account ' ));
+            	demoFun.setPageSize(size);
+                noOfRecords = demoFun.getResultSize();
+            }
+            return demoFun;
+        }
+        set;
+    }
+    
+    public List<Account> getAccounts() {
+        List<Account> accList = new List<Account>();
+        List<Account> accoun = new List<Account>();
+        for(Account a : (List<Account>)demoFun.getRecords())
+            accList.add(a);
+        
+        if(billingPickValue == 'BillingCity')
+        {
+           for(Account acc: accList )
+            {
+                if(acc.BillingCity==inputString)
+                    accoun.add(acc);
+            } 
+           
+        }
+        
+        if(billingPickValue == 'BillingState')
+        {
+           for(Account acc: accList )
+            {
+                if(acc.BillingState==inputString)
+                    accoun.add(acc);
+            } 
+            
+        }
+        
+        if(billingPickValue == 'BillingCountry')
+        {
+           for(Account acc: accList )
+            {
+                if(acc.BillingCountry==inputString)
+                    accoun.add(acc);
+            } 
+            
+        }
+        
+        return accoun;
+ 
+    }
+    
+    public void showList()
+    {
+        getAccounts();
+    }
+    public pageReference refresh() {
+        demoFun = null;
+        getAccounts();
+        demoFun.setPageNumber(1);
+        return null;
+    }
+     
+    public Boolean hasNext {
+        get {
+            return demoFun.getHasNext();
+        }
+        set;
+    }
+    public Boolean hasPrevious {
+        get {
+            return demoFun.getHasPrevious();
+        }
+        set;
+    }
+  
+    public Integer pageNumber {
+        get {
+            return demoFun.getPageNumber();
+        }
+        set;
+    }
+  
+    public void first() {
+        demoFun.first();
+    }
+  
+    public void last() {
+        demoFun.last();
+    }
+  
+    public void previous() {
+        demoFun.previous();
+    }
+  
+    public void next() {
+        demoFun.next();
+    }
+
+}
+
+----------------------
+
+
+<apex:page controller="DemoClass">
+    <apex:form >
+    	<apex:pageBlock title="Hello">
+            <apex:pageBlockSection title="Filter the Account by :">
+                <apex:selectList size="1" value="{! billingPickValue}">
+                    <apex:selectOptions value="{!billingOptions}">
+                    </apex:selectOptions>
+                </apex:selectList>
+                <apex:inputText value="{! inputString}">
+                </apex:inputText>
+                 <apex:commandButton value="Show" action="{! showList}" reRender="accounttable"></apex:commandButton>
+                <apex:commandButton status="fetchStatus" reRender="accounttable" value="|<" action="{!first}" disabled="{!!hasPrevious}" title="First Page"/>
+                <apex:commandButton status="fetchStatus" reRender="accounttable" value="<" action="{!previous}" disabled="{!!hasPrevious}" title="Previous Page"/>
+                <apex:commandButton status="fetchStatus" reRender="accounttable" value=">" action="{!next}" disabled="{!!hasNext}" title="Next Page"/>
+                <apex:commandButton status="fetchStatus" reRender="accounttable" value=">|" action="{!last}" disabled="{!!hasNext}" title="Last Page"/>
+                 </apex:pageBlockSection>
+                <apex:outputPanel id="accounttable">
+                    <apex:pageBlockSection >
+                    <apex:pageBlockTable title="Accounts" value="{! Accounts}"  var="a">
+                    <apex:column value="{! a.Name}">
+                    </apex:column>
+                    <apex:column value="{! a.BillingCity}">
+                    </apex:column>
+                    <apex:column value="{! a.BillingState}">
+                    </apex:column>
+                    <apex:column value="{! a.BillingCountry}">
+                    </apex:column>
+                </apex:pageBlockTable>  
+                        </apex:pageBlockSection>
+                </apex:outputPanel> 
+            	<apex:outputPanel style="color:#4AA02C;font-weight:bold">
+                    <apex:actionStatus id="fetchStatus" startText="Fetching..." stopText=""/>
+                </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
