@@ -1,0 +1,18 @@
+public class NumberOfDaysBetweenTwoDates
+{
+	public static Integer NumberOfDays(Date startDate, Date endDate){
+       Integer i = 0;
+       startDate = startDate.addDays(1);
+       while(startDate < endDate)
+       {
+            DateTime myDateTime = (DateTime) startDate;
+        	String dayOfWeek = myDateTime.format('E');
+           	if( dayOfWeek != 'Sat' && dayOfWeek != 'Sun')
+            {
+               i++;
+           	}
+           startDate = startDate.addDays(1);
+       }
+       return i;
+   }
+}
